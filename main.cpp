@@ -1,6 +1,7 @@
 #define VISOR_ENABLE
-//#define RANDOM_START
-#define UP_START
+
+#define HORIZONTAL_PBC
+
 #include <cstdlib>
 #include <cmath>
 #include <iostream>
@@ -14,8 +15,7 @@
 
 using namespace std;
 
-//const auto SIZE=20;
-
+double GRAV=0;
 auto Hamiltonian(vector<Point> particles)
 {
 	//Aby uniknąć powtórzeń bierzemy tylko te pary gdzie b<a
@@ -39,11 +39,9 @@ Point EnergyGradient(vector<Point> particles, int particleid)
 	Point dE(0,0);
 	for(int b=0;b<particles.size();b++) 
 		{	if(b==particleid) continue;
-			auto dx=particles[particleid].x-particles[b].x;
-			if(abs(dx)>SIZE/2)dx=-2*SIZE*signbit(dx)+SIZE-abs(dx); 
 			
-			auto dy=abs(particles[particleid].y-particles[b].y);
-			if(abs(dy)>SIZE/2)dy=-2*SIZE*signbit(dy)+SIZE-abs(dy); 
+			auto dx=particles[particleid].x-particles[b].x;
+			auto dy=particles[particleid].y-particles[b].y;
 			
 			auto r2=pow(dx,2)+pow(dy,2);
 			
@@ -51,6 +49,9 @@ Point EnergyGradient(vector<Point> particles, int particleid)
 			dE.x+=dx*t;
 			dE.y+=dy*t;
 		}
+		
+	//GRAVITATIONAL COMPONENT
+	dE.y-=GRAV;
 	return dE;
 }
 
@@ -70,8 +71,8 @@ for(auto i:x){
 
 int main(int argc, char** argv)
 {	
-	if(argc!=7)
-	{cout<<"Usage: "<<argv[0]<<"<delay> <Steps count> <rng seed> <step size> <no. particles> <Temperature>" <<endl;
+	if(argc!=8)
+	{cout<<"Usage: "<<argv[0]<<"<delay> <Steps count> <rng seed> <step size> <no. particles> <Temperature> <gravity>" <<endl;
 		exit(-1);
 	}
 	
@@ -82,6 +83,8 @@ int main(int argc, char** argv)
 	const double stepsize=atof(argv[4]);
 	const int particlecount=atoi(argv[5]);
 	const double Temp=atof(argv[6]);
+	GRAV=atof(argv[7]);
+	
 	boost::random::mt19937 rng(seed);
 	boost::random::uniform_int_distribution<> boolean(0,1);
 	boost::random::uniform_real_distribution<> real(-1,1);
@@ -102,13 +105,12 @@ int main(int argc, char** argv)
 			Point np(real(rng)*stepsize,real(rng)*stepsize);
 			auto ed=np.x*de.x+np.y*de.y;
 			
-			cout<<mcs<< ' '<<ed<<endl;
 			
 			if(ed<0||realpos(rng)>exp(-ed/Temp)){particles[i].x+=np.x;particles[i].y+=np.y;}
-			if (particles[i].x<0) particles[i].x+=SIZE;
-	 		if (particles[i].x>SIZE) particles[i].x-=SIZE;	
-			if (particles[i].y<0) particles[i].y+=SIZE;
-	 		if (particles[i].y>SIZE) particles[i].y-=SIZE;
+			if (particles[i].x<0) particles[i].x=0;
+	 		if (particles[i].x>SIZE) particles[i].x=SIZE;	
+			if (particles[i].y<0) particles[i].y=0;
+	 		if (particles[i].y>SIZE) particles[i].y=SIZE;
  		}
 
 		visor.FullDraw(particles);
