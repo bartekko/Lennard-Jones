@@ -8,12 +8,14 @@
 #include <SDL2/SDL.h>
 //typedef std::vector<std::pair<int,int>> pointList;
 
-#define SCALE 30
+
+#define SIZE 20
+#define SCALE 20
 
 class Draw2D
 {
 public:
-	Draw2D(int windowSize=500)
+	Draw2D(int windowSize=700)
 	{	SDL_Init(SDL_INIT_VIDEO);
 		win= SDL_CreateWindow("Visor",SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,windowSize,windowSize,0);
 		ren=SDL_CreateRenderer(win,-1,0);	
@@ -22,14 +24,17 @@ public:
 	{	SDL_SetRenderDrawColor(ren,0,0,0,255);
 		SDL_RenderClear(ren);
 		SDL_SetRenderDrawColor(ren,255,0,0,255);
-		for(int i=0;i<ysize;i++)
-		{	int x=SCALE*i+SCALE/2;
 			for(auto pt: points)
-			{	
-				SDL_RenderDrawPoint(ren,int(pt.x+0.5),int(pt.y+0.5));				
+			{	while (pt.x<0)pt.x+=SIZE;
+				while (pt.y<0)pt.y+=SIZE;
+				while (pt.x>SIZE)pt.x-=SIZE;
+				while (pt.y>SIZE)pt.y-=SIZE;
+				
+				SDL_RenderDrawPoint(ren,int(SCALE*(pt.x)+0.5),int(SCALE*(pt.y)+0.5));				
 			
 			}
-		}
+		SDL_SetRenderDrawColor(ren,255,255,255,255);	
+		SDL_RenderDrawPoint(ren,int(SCALE*(points[4].x)+0.5),int(SCALE*(points[4].y)+0.5));				
 		
 	SDL_RenderPresent(ren);	
 	SDL_Event e;
