@@ -9,7 +9,7 @@
 //typedef std::vector<std::pair<int,int>> pointList;
 
 
-#define SIZE 20
+#define SIZE 35
 #define SCALE 20
 
 class Draw2D

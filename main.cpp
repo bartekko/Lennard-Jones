@@ -15,24 +15,6 @@
 
 using namespace std;
 
-double GRAV=0;
-auto Hamiltonian(vector<Point> particles)
-{
-	//Aby uniknąć powtórzeń bierzemy tylko te pary gdzie b<a
-	double E=0;
-	for(int a=0;a<particles.size();a++)
-		for(int b=0;b<a;b++)  
-		{	auto dx=abs(particles[a].x-particles[b].x);
-			if(dx>SIZE/2)dx=SIZE-dx; 
-			auto dy=abs(particles[a].y-particles[b].y);
-			if(dy>SIZE/2)dy=SIZE-dy;	 			
-			auto r2=pow(dx,2)+pow(dy,2);
-			E+=4*(pow(r2,-6)-pow(r2,-3));
-		}
-
-	return E;
-}
-
 
 Point EnergyGradient(vector<Point> particles, int particleid)
 {	
@@ -43,15 +25,21 @@ Point EnergyGradient(vector<Point> particles, int particleid)
 			auto dx=particles[particleid].x-particles[b].x;
 			auto dy=particles[particleid].y-particles[b].y;
 			
+			if (abs(dx)>SIZE/2)dx=2*signbit(dx)*SIZE-SIZE-dx;
+			if (abs(dy)>SIZE/2)dy=2*signbit(dy)*SIZE-SIZE-dy;
+			
+			
+			//if(abs(dx)>2.5*1.12*1.4||abs(dy)>2.5*1.12*1.4)continue;
 			auto r2=pow(dx,2)+pow(dy,2);
+			if (r2>2.5*1.12*2.5*1.12)continue;
 			
 			auto t=24*(pow(r2,3)-2)/pow(r2,7);			
 			dE.x+=dx*t;
 			dE.y+=dy*t;
 		}
 		
-	//GRAVITATIONAL COMPONENT
-	dE.y-=GRAV;
+/*	//GRAVITATIONAL COMPONENT
+	dE.y-=GRAV;*/
 	return dE;
 }
 
@@ -71,8 +59,8 @@ for(auto i:x){
 
 int main(int argc, char** argv)
 {	
-	if(argc!=8)
-	{cout<<"Usage: "<<argv[0]<<"<delay> <Steps count> <rng seed> <step size> <no. particles> <Temperature> <gravity>" <<endl;
+	if(argc!=7)
+	{cout<<"Usage: "<<argv[0]<<"<delay> <Steps count> <rng seed> <step size> <no. particles> <Temperature>" <<endl;
 		exit(-1);
 	}
 	
@@ -83,19 +71,19 @@ int main(int argc, char** argv)
 	const double stepsize=atof(argv[4]);
 	const int particlecount=atoi(argv[5]);
 	const double Temp=atof(argv[6]);
-	GRAV=atof(argv[7]);
+	//GRAV=atof(argv[7]);
 	
 	boost::random::mt19937 rng(seed);
 	boost::random::uniform_int_distribution<> boolean(0,1);
 	boost::random::uniform_real_distribution<> real(-1,1);
-	boost::random::uniform_real_distribution<> realpos(-1,1);
+	boost::random::uniform_real_distribution<> realpos(0,1);
 	boost::random::uniform_real_distribution<> pos(0,35);	
 
 
 
 	vector<Point> particles(particlecount);
 	for (auto& p:particles){p.x=pos(rng);p.y=pos(rng);}
-
+	cout<<Temp<<endl;
 	visor.FullDraw(particles);
 	for(int mcs=0;mcs<steps;mcs++)
 	{	
@@ -106,11 +94,11 @@ int main(int argc, char** argv)
 			auto ed=np.x*de.x+np.y*de.y;
 			
 			
-			if(ed<0||realpos(rng)>exp(-ed/Temp)){particles[i].x+=np.x;particles[i].y+=np.y;}
-			if (particles[i].x<0) particles[i].x=0;
-	 		if (particles[i].x>SIZE) particles[i].x=SIZE;	
-			if (particles[i].y<0) particles[i].y=0;
-	 		if (particles[i].y>SIZE) particles[i].y=SIZE;
+			if(ed<0||realpos(rng)<exp(-ed/Temp)){particles[i].x+=np.x;particles[i].y+=np.y;}
+			if (particles[i].x<0) particles[i].x+=SIZE;
+	 		if (particles[i].x>SIZE) particles[i].x-=SIZE;	
+			if (particles[i].y<0) particles[i].y+=SIZE;
+	 		if (particles[i].y>SIZE) particles[i].y-=SIZE;
  		}
 
 		visor.FullDraw(particles);
