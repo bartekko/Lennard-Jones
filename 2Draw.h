@@ -10,7 +10,7 @@
 
 
 #define SIZE 35
-#define SCALE 20
+#define SCALE 20	
 
 class Draw2D
 {

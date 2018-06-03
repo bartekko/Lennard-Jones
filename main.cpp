@@ -15,6 +15,28 @@
 
 using namespace std;
 
+double rsquare(Point a,Point b)
+{
+			auto dx=a.x-b.x;
+			auto dy=a.y-b.y;
+			if (abs(dx)>SIZE/2)dx=2*signbit(dx)*SIZE-SIZE-dx;
+			if (abs(dy)>SIZE/2)dy=2*signbit(dy)*SIZE-SIZE-dy;		
+			auto r2=pow(dx,2)+pow(dy,2);
+			
+			return r2;
+}
+
+vector<int> Density(vector<Point> particles,double dx)
+{
+	vector<int> ans(int(SIZE/dx+2));
+	for(int a=0;a<particles.size();a++) 
+		for(int b=0;b<a;b++) 
+		{
+			ans.at(int(sqrt(rsquare(particles[a],particles[b]))))+=1;
+		}
+	
+	return ans; 
+}
 
 Point EnergyGradient(vector<Point> particles, int particleid)
 {	
@@ -43,24 +65,10 @@ Point EnergyGradient(vector<Point> particles, int particleid)
 	return dE;
 }
 
-
-auto average(auto x)
-{
-auto ans=0.;
-int count=0;
-for(auto i:x){
-	ans+=i;
-	count+=1;
-	}
-	return ans/count;
-}
-
-
-
 int main(int argc, char** argv)
 {	
-	if(argc!=7)
-	{cout<<"Usage: "<<argv[0]<<"<delay> <Steps count> <rng seed> <step size> <no. particles> <Temperature>" <<endl;
+	if(argc!=9)
+	{cout<<"Usage: "<<argv[0]<<"<delay> <Steps count> <rng seed> <step size> <no. particles> <Temperature> <analysis rate> <analysis density>" <<endl;
 		exit(-1);
 	}
 	
@@ -71,19 +79,19 @@ int main(int argc, char** argv)
 	const double stepsize=atof(argv[4]);
 	const int particlecount=atoi(argv[5]);
 	const double Temp=atof(argv[6]);
-	//GRAV=atof(argv[7]);
-	
+	auto rate=atoi(argv[7]);
+	auto dx=atof(argv[8]);
 	boost::random::mt19937 rng(seed);
 	boost::random::uniform_int_distribution<> boolean(0,1);
 	boost::random::uniform_real_distribution<> real(-1,1);
 	boost::random::uniform_real_distribution<> realpos(0,1);
 	boost::random::uniform_real_distribution<> pos(0,35);	
-
-
+	
+	
+	vector<int> dens(int(SIZE/dx+2));
 
 	vector<Point> particles(particlecount);
 	for (auto& p:particles){p.x=pos(rng);p.y=pos(rng);}
-	cout<<Temp<<endl;
 	visor.FullDraw(particles);
 	for(int mcs=0;mcs<steps;mcs++)
 	{	
@@ -102,7 +110,19 @@ int main(int argc, char** argv)
  		}
 
 		visor.FullDraw(particles);
-		if(mcs<delay)continue;
+		cerr<<mcs<<endl;
+		if(mcs<delay||mcs%rate!=0)continue;
+
+		auto b=Density(particles,dx);				
+		for(int i=0;i<dens.size();i++)
+		{	
+			dens[i]+=b[i];
+		}
 	
 	}
+
+		for(int i=0;i<dens.size();i++)
+		cout<<dx*i<<' '<<dens[i]<<endl;
+
+
 }
