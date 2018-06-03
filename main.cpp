@@ -30,16 +30,16 @@ double rsquare(Point a,Point b)
 			return r2;
 }
 
-vector<int> Density(vector<Point> particles,double dx)
+void Density(vector<Point> particles,vector<double>& densities)
 {
-	vector<int> ans(int(SIZE/dx+5));
+
 	for(int a=0;a<particles.size();a++) 
 		for(int b=0;b<a;b++) 
 		{
-			ans.at(int(sqrt(rsquare(particles[a],particles[b]))))+=1;
+			densities[int(1000*sqrt(rsquare(particles[a],particles[b])))]+=1;
 		}
 	
-	return ans; 
+	return;
 }
 
 Point EnergyGradient(vector<Point> particles, int particleid)
@@ -73,8 +73,8 @@ Point EnergyGradient(vector<Point> particles, int particleid)
 
 int main(int argc, char** argv)
 {	
-	if(argc!=9)
-	{cout<<"Usage: "<<argv[0]<<"<delay> <Steps count> <rng seed> <step size> <no. particles> <Temperature> <analysis rate> <analysis density>" <<endl;
+	if(argc!=8)
+	{cout<<"Usage: "<<argv[0]<<"<delay> <Steps count> <rng seed> <step size> <no. particles> <Temperature> <analysis rate>" <<endl;
 		exit(-1);
 	}
 	
@@ -94,7 +94,7 @@ int main(int argc, char** argv)
 	boost::random::uniform_real_distribution<> pos(0,35);	
 	
 	
-	vector<int> dens(int(SIZE/dx+5));
+	vector<double> dens(35000);
 
 	vector<Point> particles(particlecount);
 	for (auto& p:particles){p.x=pos(rng);p.y=pos(rng);}
@@ -119,16 +119,12 @@ int main(int argc, char** argv)
 		cerr<<mcs<<endl;
 		if(mcs<delay||mcs%rate!=0)continue;
 
-		auto b=Density(particles,dx);				
-		for(int i=0;i<dens.size();i++)
-		{	
-			dens[i]+=b[i];
-		}
-	
+		Density(particles,dens);				
+		
 	}
 
 		for(int i=0;i<dens.size();i++)
-		cout<<dx*i<<' '<<dens[i]<<endl;
-
-
+		cout<<double(i)/1000<<' '<<dens[i]<<endl;
+		
 }
+
