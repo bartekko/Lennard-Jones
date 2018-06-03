@@ -25,9 +25,9 @@ public:
 		wSize=windowSize;
 	}
 	void FullDraw(std::vector<Point> points)
-	{	SDL_SetRenderDrawColor(ren,0,0,255,255);
+	{	SDL_SetRenderDrawColor(ren,0,0,0,255);
 		SDL_RenderClear(ren);
-		SDL_SetRenderDrawColor(ren,255,255,0,255);
+		SDL_SetRenderDrawColor(ren,0,255,0,255);
 			for(auto pt: points)
 			{	while (pt.x<0)pt.x+=SIZE;
 				while (pt.y<0)pt.y+=SIZE;
@@ -37,9 +37,10 @@ public:
 				SDL_RenderDrawPoint(ren,(OffsetX+int(SCALE*(pt.x)+0.5))%wSize,(OffsetY+int(SCALE*(pt.y)+0.5))%wSize);				
 			
 			}
-		SDL_SetRenderDrawColor(ren,255,255,255,255);	
-		SDL_RenderDrawPoint(ren,int(SCALE*(points[4].x)+0.5),int(SCALE*(points[4].y)+0.5));				
-		
+	
+		SDL_SetRenderDrawColor(ren,255,0,0,255);	
+		SDL_RenderDrawPoint(ren,(OffsetX+int(SCALE*(points[0].x)+0.5))%wSize,(OffsetY+int(SCALE*(points[0].y)+0.5))%wSize);			
+		SDL_RenderDrawPoint(ren,(OffsetX+int(SCALE*(points[2].x)+0.5))%wSize,(OffsetY+int(SCALE*(points[2].y)+0.5))%wSize);				
 		SDL_RenderPresent(ren);	
 		SDL_Event e;
 	

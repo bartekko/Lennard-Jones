@@ -73,6 +73,7 @@ Point EnergyGradient(vector<Point> particles, int particleid)
 
 int main(int argc, char** argv)
 {	
+int count=0;
 	if(argc!=8)
 	{cout<<"Usage: "<<argv[0]<<"<delay> <Steps count> <rng seed> <step size> <no. particles> <Temperature> <analysis rate>" <<endl;
 		exit(-1);
@@ -86,7 +87,6 @@ int main(int argc, char** argv)
 	const int particlecount=atoi(argv[5]);
 	const double Temp=atof(argv[6]);
 	auto rate=atoi(argv[7]);
-	auto dx=atof(argv[8]);
 	boost::random::mt19937 rng(seed);
 	boost::random::uniform_int_distribution<> boolean(0,1);
 	boost::random::uniform_real_distribution<> real(-1,1);
@@ -117,14 +117,17 @@ int main(int argc, char** argv)
 
 		visor.FullDraw(particles);
 		cerr<<mcs<<endl;
+		cerr<<sqrt(rsquare(particles[0],particles[2]))<<endl;
 		if(mcs<delay||mcs%rate!=0)continue;
 
-		Density(particles,dens);				
-		
+		Density(particles,dens);
+		count++;				
+
+
 	}
 
 		for(int i=0;i<dens.size();i++)
-		cout<<double(i)/1000<<' '<<dens[i]<<endl;
+		cout<<double(i)/1000<<' '<<dens[i]*1000000/double(i)/double(i)/count<<endl;
 		
 }
 
