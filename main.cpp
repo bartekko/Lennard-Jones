@@ -19,8 +19,12 @@ double rsquare(Point a,Point b)
 {
 			auto dx=a.x-b.x;
 			auto dy=a.y-b.y;
-			if (abs(dx)>SIZE/2)dx=2*signbit(dx)*SIZE-SIZE-dx;
-			if (abs(dy)>SIZE/2)dy=2*signbit(dy)*SIZE-SIZE-dy;		
+		
+			if(dx<-SIZE/2)dx+=SIZE;
+			if(dx>SIZE/2)dx-=SIZE;						
+			if(dy<-SIZE/2)dy+=SIZE;
+			if(dy>SIZE/2)dy-=SIZE;	
+			
 			auto r2=pow(dx,2)+pow(dy,2);
 			
 			return r2;
@@ -28,7 +32,7 @@ double rsquare(Point a,Point b)
 
 vector<int> Density(vector<Point> particles,double dx)
 {
-	vector<int> ans(int(SIZE/dx+2));
+	vector<int> ans(int(SIZE/dx+5));
 	for(int a=0;a<particles.size();a++) 
 		for(int b=0;b<a;b++) 
 		{
@@ -47,8 +51,10 @@ Point EnergyGradient(vector<Point> particles, int particleid)
 			auto dx=particles[particleid].x-particles[b].x;
 			auto dy=particles[particleid].y-particles[b].y;
 			
-			if (abs(dx)>SIZE/2)dx=2*signbit(dx)*SIZE-SIZE-dx;
-			if (abs(dy)>SIZE/2)dy=2*signbit(dy)*SIZE-SIZE-dy;
+			if(dx<-SIZE/2)dx+=SIZE;
+			if(dx>SIZE/2)dx-=SIZE;						
+			if(dy<-SIZE/2)dy+=SIZE;
+			if(dy>SIZE/2)dy-=SIZE;
 			
 			
 			//if(abs(dx)>2.5*1.12*1.4||abs(dy)>2.5*1.12*1.4)continue;
@@ -88,7 +94,7 @@ int main(int argc, char** argv)
 	boost::random::uniform_real_distribution<> pos(0,35);	
 	
 	
-	vector<int> dens(int(SIZE/dx+2));
+	vector<int> dens(int(SIZE/dx+5));
 
 	vector<Point> particles(particlecount);
 	for (auto& p:particles){p.x=pos(rng);p.y=pos(rng);}
